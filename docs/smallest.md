@@ -1,4 +1,4 @@
-以下、素のUbuntu 26.04 + Windows で Nextcloud AIO + EuroOffice を動かす最小手順です。
+以下、素のUbuntu 24.04 + Windows で Nextcloud AIO + EuroOffice を動かす最小手順です。
 
 ---
 
