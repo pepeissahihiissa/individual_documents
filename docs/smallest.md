@@ -4,7 +4,7 @@
 
 ## 0. 前提
 
-- Ubuntu 26.04 LTS（VM or 実機）
+- Ubuntu 24.04 LTS（VM or 実機）
 - Windows 11（ブラウザアクセス用）
 - 同一LAN内
 - 外部公開不要
@@ -39,16 +39,27 @@ sudo apt update && sudo apt install -y caddy
 
 ```
 # /etc/caddy/Caddyfile
-cloud.home.arpa {
+office.home.arpa {
+    tls internal
     reverse_proxy http://localhost:11000
 }
 ```
 
+## 5. hosts設定
+
 ```
-sudo systemctl enable --now caddy
+vi /etc/hosts
+192.168.11.2 office.home.arpa
 ```
 
-## 5. AIO起動
+## 6. caddy再起動
+
+```
+sudo systemctl restart caddy
+systemctl status caddy
+```
+
+## 7. AIO起動
 
 ```
 sudo docker run \
@@ -64,22 +75,16 @@ sudo docker run \
   nextcloud/all-in-one:latest
 ```
 
-## 6. AIO初期設定
+## 8. AIO初期設定
 
 1. http://localhost:8080 にアクセス
 2. 初期パスワードを入力
-3. ドメイン: `cloud.home.arpa`
+3. ドメイン: `office.home.arpa`
+4.Nextcloud Hub 26 Springインストールにチェック
 4. EuroOffice を有効化 → Save & Apply
 5. コンテナが全て Up になるまで待機
 
-## 7. CA証明書をWindowsへ配布
-
-```
-sudo cp /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt ~/lab-config/
-```
-→ root.crt をWindowsにコピー → ダブルクリック → 信頼されたルート証明機関にインストール
-
-## 7'. CA証明書をLinuxに登録
+## 9'. CA証明書をLinuxに登録
 
 Caddyの内部CA証明書をシステムCAとしてコピー
 ```
@@ -91,34 +96,39 @@ sudo update-ca-certificates
 ```
 確認
 ```
-curl https://cloud.home.arpa
+curl https://office.home.arpa
+```
+## 9. CA証明書をWindowsへ配布
+
+```
+sudo cp /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt ~/lab-config/
+```
+→ root.crt をWindowsにコピー → ダブルクリック → 信頼されたルート証明機関にインストール
+
+## 10. CA証明書をBrave（ブラウザ）にインポート
+```
+sudo cp /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt ~/Downloads/
+sudo chmod 644 ~/Downloads/root.crt
 ```
 
-## 8. EuroOffice設定: StorageUrl指定
+Braveの証明書マネージャを開いて、信頼できる証明書のインポートを押して、証明書を読み込む
 
-```
-sudo docker exec --user www-data nextcloud-aio-nextcloud \
-  php occ config:app:set rich_commands storage_url \
-  --value 'http://nextcloud-aio-apache:11000/'
-```
+## 11. EuroOffice設定: StorageUrl指定
 
-## 9. 動作確認
+Nextcloudに管理者でログインする
+右上のメニューから管理者設定を選択する
 
-Windowsブラウザ → `https://cloud.home.arpa` にアクセス
+サーバーから内部リクエストに使用されるNextcloud Officeアドレス：
+http://nextcloud-aio-eurooffice/
+Nextcloud Officeから内部リクエストに利用されるサーバーアドレス：
+http://nextcloud-aio-apache:11000/
+
+## 12. 動作確認
+
+Windowsブラウザ → `https://office.home.arpa` にアクセス
 → Nextcloudログイン → xlsxファイル作成 → 編集画面表示確認
 
 ---
 
-## 最小手順のまとめ（たったこれだけ）
 
-| # | やること | コマンドor操作 |
-|---|---|---|
-| 1 | Docker+Caddyインストール | `apt install` |
-| 2 | Caddyfile書く | `/etc/caddy/Caddyfile` |
-| 3 | AIO起動 | `docker run` (SKIP_DOMAIN_VALIDATION=true) |
-| 4 | AIO管理画面で EuroOffice 有効化 | ブラウザ操作 |
-| 5 | root.crtをWindowsにインストール | コピー→ダブルクリック |
-| 6 | StorageUrl設定 | `occ config:app:set storage_url` |
-| 7 | ブラウザで確認 | `https://cloud.home.arpa` |
 
-ホストCaddy＋EuroOfficeで証明書エラーにハマる場合、**手順8（StorageUrl）が抜けている**ことが原因です。これだけで解決します。
