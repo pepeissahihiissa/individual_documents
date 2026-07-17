@@ -80,11 +80,11 @@ sudo docker run \
 1. http://localhost:8080 にアクセス
 2. 初期パスワードを入力
 3. ドメイン: `office.home.arpa`
-4.Nextcloud Hub 26 Springインストールにチェック
-4. EuroOffice を有効化 → Save & Apply
-5. コンテナが全て Up になるまで待機
+4. Nextcloud Hub 26 Springインストールにチェック
+5. EuroOffice を有効化 → Save & Apply
+6. コンテナが全て Up になるまで待機
 
-## 9'. CA証明書をLinuxに登録
+## 9. CA証明書をLinuxに登録
 
 Caddyの内部CA証明書をシステムCAとしてコピー
 ```
@@ -98,11 +98,8 @@ sudo update-ca-certificates
 ```
 curl https://office.home.arpa
 ```
-## 9. CA証明書をWindowsへ配布
+## 9'. CA証明書をWindowsへ配布(Windowsから使用する場合)
 
-```
-sudo cp /var/lib/caddy/.local/share/caddy/pki/authorities/local/root.crt ~/lab-config/
-```
 → root.crt をWindowsにコピー → ダブルクリック → 信頼されたルート証明機関にインストール
 
 ## 10. CA証明書をBrave（ブラウザ）にインポート
@@ -113,7 +110,7 @@ sudo chmod 644 ~/Downloads/root.crt
 
 Braveの証明書マネージャを開いて、信頼できる証明書のインポートを押して、証明書を読み込む
 
-## 11. EuroOffice設定: StorageUrl指定
+## 11. EuroOffice設定
 
 Nextcloudに管理者でログインする
 右上のメニューから管理者設定を選択する
